@@ -1185,10 +1185,23 @@ async function initSelectedMonth() {
 
 (async function init(){
   setSyncStatus('saving');
-  await initSelectedMonth();
-  await refreshHistoryIndicators();
-  applyRecorde();
-  setSyncStatus('ok');
+  try {
+    await initSelectedMonth();
+    await refreshHistoryIndicators();
+    applyRecorde();
+    setSyncStatus('ok');
+  } catch(e) {
+    console.error('Erro na inicialização:', e);
+    setSyncStatus('err');
+  }
+
+  // Listener em tempo real para histórico de indicadores (todos os meses)
+  onValue(ref(db, 'ind'), snap => {
+    historyIndicators = snap.val() || {};
+    applyRecorde();
+  }, err => {
+    console.error('Erro listener ind global:', err);
+  });
 })();
 </script>
 </body>
